@@ -30,12 +30,7 @@ class NewsInfo {
      * @param type $info
      */
     public function __construct($info) {
-        $this->attributes['link'] = $info['link'];
-        $this->attributes['catid'] = $info['catid'];
-        $this->attributes['time'] = $info['time'];
-        $this->attributes['title'] = $info['title'];
-        $this->attributes['rssid'] = $info['rssid'];
-        $this->attributes['description'] = $info['description'];
+        $this->attributes = $info;
         if (isset($info['pageid'])) {
             $this->attributes['pageid'] = $info['pageid'];
         } else {
@@ -56,7 +51,8 @@ class NewsInfo {
      * 抓取内容
      */
     public function grabHtml() {
-        //是图集        
+        echo $this->attributes['link'] . "\n";
+        //是图集
         if ($this->crawler->filter('.bai13')->getNode(0)) {
             //内容信息记录
             $this->attributes['content'] = $this->crawler->filter('.bai13')->eq(1)->html();
@@ -68,22 +64,21 @@ class NewsInfo {
             $this->attributes['source'] = $this->crawler->filter('#source')->text();
             if ($this->crawler->filter('.article')->getNode(0)) {
                 $this->attributes['content'] = $this->crawler->filter('.article')->html();
+            } elseif ($this->crawler->filter('#content')->getNode(0)) {
+                $this->attributes['content'] = $this->crawler->filter('#content')->html();
             }
         }
+
+//        echo $this->attributes['content'] . "\n";
     }
 
     /**
      * 打印内容
      */
     public function printInfo() {
-        print_r($this->attributes['catid'] . "\n");
-        print_r($this->attributes['content'] . "\n");
-        print_r($this->attributes['link'] . "\n");
-        print_r($this->attributes['source'] . "\n");
-        print_r($this->attributes['time'] . "\n");
-        print_r($this->attributes['title'] . "\n");
-        print_r($this->attributes['rssid'] . "\n");
-        print_r($this->attributes['pageid'] . "\n");
+        for ($i = 0; $i < count($this->attributes); $i++) {
+            print_r($this->attributes[$i] . "\n");
+        }
     }
 
     /**
@@ -91,11 +86,28 @@ class NewsInfo {
      */
     public function saveToDb() {
         $xm_mysql_obj = XmMysqlObj::getInstance();
-        $query = "insert into rs_news (`newsid`,`catid`,`title`,`content`,`pageid`,`source`,`rssid`,`time`,`description`,`basehref`) values "
-                . "('{$this->attributes['newsid']}',{$this->attributes['catid']},'{$this->attributes['title']}',"
-                . "'{$this->attributes['content']}',{$this->attributes['pageid']},'{$this->attributes['source']}',"
-                . "{$this->attributes['rssid']},'{$this->attributes['time']}','{$this->attributes['description']}','{$this->attributes['link']}')";
-        $xm_mysql_obj->exec_query($query);
+
+        $query = "select link from rs_news where link='{$this->attributes['link']}'";
+        $num_rows = $xm_mysql_obj->num_rows($query);
+
+        if (!$num_rows && $this->attributes['content']) {
+            $query = "insert into rs_news (";
+            foreach ($this->attributes as $key => $value) {
+                $query = $query . "`{$key}`,";
+            }
+            $query = substr($query, 0, -1);
+            $query = $query . ") values (";
+            foreach ($this->attributes as $key => $value) {
+                if (is_int($value)) {
+                    $query = $query . "$value,";
+                } else {
+                    $query = $query . "'$value',";
+                }
+            }
+            $query = substr($query, 0, -1);
+            $query = $query . ")";
+            $xm_mysql_obj->exec_query($query);
+        }
     }
 
     /**
@@ -103,9 +115,6 @@ class NewsInfo {
      * @return null
      */
     public function nextPage() {
-        $client = new Client();
-        $this->crawler = $client->request('GET', $this->attributes['link']);
-
         $info = $this->attributes;
 
         if ($this->crawler->filter('.nextpage')->getNode(0)) {
@@ -123,12 +132,10 @@ class NewsInfo {
             if ($next_flag == 1) {
                 $info['pageid'] = $info['pageid'] + 1;
                 $next_page = new static($info);
-                echo $next_url;
                 return $next_page;
             } else {
                 return null;
             }
-            $this->attributes['pageid'] = $this->attributes['pageid'] + 1;
         } else {
             return null;
         }

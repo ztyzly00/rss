@@ -4,6 +4,8 @@ require_once 'RSS.php';
 require_once 'NewsInfo.php';
 require_once 'RssList.php';
 
+set_time_limit(0);
+
 //RSS::getArrayByXml("http://www.xinhuanet.com/politics/news_politics.xml");
 //$news_info = new NewsInfo("http://news.xinhuanet.com/politics/2016-06/07/c_1119005849.htm",1,1);
 
@@ -14,8 +16,9 @@ $info['title'] = 'title';
 $info['rssid'] = 2;
 
 
-RssList::getNewsInfoByCatId(2);
+//RssList::getNewsInfoByCatId(11);
 
+RssList::getNewsInfoByRssId(1);
 //print_r(XmlList::getArrayByXml("http://www.xinhuanet.com/politics/news_politics.xml"));
 //$news_info = new NewsInfo($info);
 //$news_info->grabHtml();

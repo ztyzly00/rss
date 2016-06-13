@@ -14,8 +14,15 @@ use Core\MySql\Mysql_Model\XmMysqlObj;
 
 class RssList {
 
-    public static function getNewsInfoByRssId() {
-        
+    public static function getNewsInfoByRssId($rssid) {
+        $xm_mysql_obj = XmMysqlObj::getInstance();
+        $query = "select * from rs_category_map where rssid=$rssid ";
+        $fetch_array = $xm_mysql_obj->fetch_assoc($query);
+        for ($i = 0; $i < count($fetch_array); $i++) {
+            $catid = $fetch_array[$i]['categoryid'];
+            self::getNewsInfoByCatId($catid);
+            echo $catid . "\n";
+        }
     }
 
     public static function getNewsInfoByCatId($catid) {
@@ -31,8 +38,14 @@ class RssList {
             $info = $xml_array[$i];
             $info['catid'] = $catid;
             $info['rssid'] = $rssid;
+
             $news_info = new NewsInfo($info);
             $news_info->saveToDb();
+
+            $next_page = $news_info;
+            while ($next_page = $next_page->nextPage()) {
+                $next_page->saveToDb();
+            }
         }
 
         echo $href;
