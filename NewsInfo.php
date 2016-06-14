@@ -51,7 +51,7 @@ class NewsInfo {
      * 抓取内容
      */
     public function grabHtml() {
-        echo $this->attributes['link'] . "\n";
+
         //是图集
         if ($this->crawler->filter('.bai13')->getNode(0)) {
             //内容信息记录
@@ -68,8 +68,6 @@ class NewsInfo {
                 $this->attributes['content'] = $this->crawler->filter('#content')->html();
             }
         }
-
-//        echo $this->attributes['content'] . "\n";
     }
 
     /**
@@ -85,12 +83,8 @@ class NewsInfo {
      * 存储到数据库
      */
     public function saveToDb() {
-        $xm_mysql_obj = XmMysqlObj::getInstance();
 
-        $query = "select link from rs_news where link='{$this->attributes['link']}'";
-        $num_rows = $xm_mysql_obj->num_rows($query);
-
-        if (!$num_rows && $this->attributes['content']) {
+        if ($this->attributes['content']) {
             $query = "insert into rs_news (";
             foreach ($this->attributes as $key => $value) {
                 $query = $query . "`{$key}`,";
@@ -106,6 +100,7 @@ class NewsInfo {
             }
             $query = substr($query, 0, -1);
             $query = $query . ")";
+            $xm_mysql_obj = XmMysqlObj::getInstance();
             $xm_mysql_obj->exec_query($query);
         }
     }

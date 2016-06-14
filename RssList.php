@@ -39,16 +39,19 @@ class RssList {
             $info['catid'] = $catid;
             $info['rssid'] = $rssid;
 
-            $news_info = new NewsInfo($info);
-            $news_info->saveToDb();
+            $query = "select link from rs_news where link='{$info['link']}'";
+            $num_rows = $xm_mysql_obj->num_rows($query);
 
-            $next_page = $news_info;
-            while ($next_page = $next_page->nextPage()) {
-                $next_page->saveToDb();
+            //重复链接的新闻不抓取
+            if (!$num_rows) {
+                $news_info = new NewsInfo($info);
+                $news_info->saveToDb();
+                $next_page = $news_info;
+                while ($next_page = $next_page->nextPage()) {
+                    $next_page->saveToDb();
+                }
             }
         }
-
-        echo $href;
     }
 
 }

@@ -1,6 +1,5 @@
 <?php
 
-require_once 'RSS.php';
 require_once 'NewsInfo.php';
 require_once 'RssList.php';
 require_once 'autoload.php';

@@ -1,6 +1,5 @@
 <?php
 
-require_once 'RSS.php';
 require_once 'NewsInfo.php';
 require_once 'RssList.php';
 
@@ -15,10 +14,9 @@ $info['time'] = '123123123';
 $info['title'] = 'title';
 $info['rssid'] = 2;
 
+RssList::getNewsInfoByCatId(1);
 
-//RssList::getNewsInfoByCatId(11);
-
-RssList::getNewsInfoByRssId(1);
+//RssList::getNewsInfoByRssId(1);
 //print_r(XmlList::getArrayByXml("http://www.xinhuanet.com/politics/news_politics.xml"));
 //$news_info = new NewsInfo($info);
 //$news_info->grabHtml();
