@@ -4,6 +4,7 @@ namespace Model;
 
 use Goutte\Client;
 use Core\MySql\Mysql_Model\XmMysqlObj;
+use Model\Strategy;
 
 class NewsInfo {
     /**
@@ -47,22 +48,27 @@ class NewsInfo {
      */
     public function grabHtml() {
 
-        //是图集
-        if ($this->crawler->filter('.bai13')->getNode(0)) {
-            //内容信息记录
-            $this->attributes['content'] = $this->crawler->filter('.bai13')->eq(1)->html();
-            //来源信息记录
-            $this->attributes['source'] = $this->crawler->filter('.info')->text();
-        }
-        //不是图集，是普通的文章模型
-        else {
-            $this->attributes['source'] = $this->crawler->filter('#source')->text();
-            if ($this->crawler->filter('.article')->getNode(0)) {
-                $this->attributes['content'] = $this->crawler->filter('.article')->html();
-            } elseif ($this->crawler->filter('#content')->getNode(0)) {
-                $this->attributes['content'] = $this->crawler->filter('#content')->html();
-            }
-        }
+
+        $this->attributes = Strategy\XinHuaGrapStrategy::GrapHtml($this->crawler, $this->attributes);
+
+
+
+
+//        if ($this->crawler->filter('.bai13')->getNode(0)) {
+//            //内容信息记录
+//            $this->attributes['content'] = $this->crawler->filter('.bai13')->eq(1)->html();
+//            //来源信息记录
+//            $this->attributes['source'] = $this->crawler->filter('.info')->text();
+//        }
+//        //不是图集，是普通的文章模型
+//        else {
+//            $this->attributes['source'] = $this->crawler->filter('#source')->text();
+//            if ($this->crawler->filter('.article')->getNode(0)) {
+//                $this->attributes['content'] = $this->crawler->filter('.article')->html();
+//            } elseif ($this->crawler->filter('#content')->getNode(0)) {
+//                $this->attributes['content'] = $this->crawler->filter('#content')->html();
+//            }
+//        }
     }
 
     /**

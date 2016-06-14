@@ -9,5 +9,9 @@
 namespace Model\Strategy\Sinterface;
 
 interface IGrapStrategy {
-    
+
+    /**
+     * 抓取内容策略
+     */
+    public static function GrapHtml($crawler, $attributes);
 }
