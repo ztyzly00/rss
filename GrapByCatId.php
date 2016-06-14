@@ -1,7 +1,9 @@
 <?php
 
-require_once 'NewsInfo.php';
-require_once 'RssList.php';
+require_once 'autoload.php';
+require_once 'vendor/autoload.php';
+
+use Model\RssList;
 
 set_time_limit(0);
 

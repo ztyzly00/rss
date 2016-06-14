@@ -1,8 +1,7 @@
 <?php
 
-require_once 'NewsInfo.php';
-require_once 'RssList.php';
 require_once 'autoload.php';
+require_once 'vendor/autoload.php';
 
 use Core\MySql\Mysql_Model\XmMysqlObj;
 

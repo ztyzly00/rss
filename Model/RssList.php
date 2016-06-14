@@ -6,9 +6,7 @@
  * and open the template in the editor.
  */
 
-require_once 'XmlList.php';
-require_once 'autoload.php';
-require_once 'NewsInfo.php';
+namespace Model;
 
 use Core\MySql\Mysql_Model\XmMysqlObj;
 

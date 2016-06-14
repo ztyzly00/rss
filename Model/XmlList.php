@@ -6,7 +6,7 @@
  * and open the template in the editor.
  */
 
-require_once 'NewsInfo.php';
+namespace Model;
 
 class XmlList {
 

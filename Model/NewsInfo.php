@@ -1,7 +1,6 @@
 <?php
 
-require_once 'vendor/autoload.php';
-require_once 'autoload.php';
+namespace Model;
 
 use Goutte\Client;
 use Core\MySql\Mysql_Model\XmMysqlObj;
