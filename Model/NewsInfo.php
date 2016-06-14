@@ -30,14 +30,10 @@ class NewsInfo {
      */
     public function __construct($info) {
         $this->attributes = $info;
-        if (isset($info['pageid'])) {
-            $this->attributes['pageid'] = $info['pageid'];
-        } else {
+        if (!isset($info['pageid'])) {
             $this->attributes['pageid'] = 0;
         }
-        if (isset($info['newsid'])) {
-            $this->attributes['newsid'] = $info['newsid'];
-        } else {
+        if (!isset($info['newsid'])) {
             $this->attributes['newsid'] = uniqid();
         }
 
