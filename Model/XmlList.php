@@ -1,20 +1,19 @@
 <?php
 
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-
 namespace Model;
 
+/**
+ * xml操作类
+ * 
+ * @author         zanuck<ztyzly00@126.com> 
+ * @since          1.0 
+ */
 class XmlList {
 
     /**
-     * 将xml转换为数组
+     * 读取xml的url将xml转换为数组
      */
     public static function getArrayByXml($url) {
-
         $xml_string = file_get_contents($url);
         $xml_obj = simplexml_load_string($xml_string);
         $return_array = array();

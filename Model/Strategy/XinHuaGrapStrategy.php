@@ -1,17 +1,23 @@
 <?php
 
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-
 namespace Model\Strategy;
 
 use Model\Strategy\Sinterface\IGrapStrategy;
 
+/**
+ * 新华网抓取策略
+ * 
+ * @author         zanuck<ztyzly00@126.com> 
+ * @since          1.0 
+ */
 class XinHuaGrapStrategy implements IGrapStrategy {
 
+    /**
+     * 抓取信息并填入到属性数组中去
+     * @param type $crawler
+     * @param type $attributes
+     * @return type
+     */
     public static function GrapHtml($crawler, $attributes) {
         //是图集
         if ($crawler->filter('.bai13')->getNode(0)) {

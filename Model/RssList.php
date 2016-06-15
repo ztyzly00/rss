@@ -1,17 +1,21 @@
 <?php
 
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-
 namespace Model;
 
 use Core\MySql\Mysql_Model\XmMysqlObj;
 
+/**
+ * list操作类 （不推荐，最好是做成实例）
+ * 
+ * @author         zanuck<ztyzly00@126.com> 
+ * @since          1.0 
+ */
 class RssList {
 
+    /**
+     * 根据rssid来抓取新闻（不推荐，速度太慢，尽量用exec模拟多线程）
+     * @param type $rssid
+     */
     public static function getNewsInfoByRssId($rssid) {
         $xm_mysql_obj = XmMysqlObj::getInstance();
         $query = "select * from rs_category_map where rssid=$rssid ";
@@ -23,12 +27,16 @@ class RssList {
         }
     }
 
+    /**
+     * 根据catid来抓取新闻
+     * @param type $catid
+     */
     public static function getNewsInfoByCatId($catid) {
         $xm_mysql_obj = XmMysqlObj::getInstance();
         $query = "select * from rs_category_map where categoryid=$catid limit 1";
-        $fetch_array = $xm_mysql_obj->fetch_assoc($query);
-        $href = $fetch_array[0]['href'];
-        $rssid = $fetch_array[0]['rssid'];
+        $row = $xm_mysql_obj->fetch_assoc_one($query);
+        $href = $row['href'];
+        $rssid = $row['rssid'];
 
         $xml_array = XmlList::getArrayByXml($href);
 
@@ -40,13 +48,12 @@ class RssList {
             $query = "select link from rs_news where link='{$info['link']}'";
             $num_rows = $xm_mysql_obj->num_rows($query);
 
-            //重复链接的新闻不抓取
+            //不重复链接的新闻才抓取
             if (!$num_rows) {
                 $news_info = new NewsInfo($info);
                 $news_info->saveToDb();
-                $next_page = $news_info;
-                while ($next_page = $next_page->nextPage()) {
-                    $next_page->saveToDb();
+                while ($news_info = $news_info->nextPage()) {
+                    $news_info->saveToDb();
                 }
             }
         }

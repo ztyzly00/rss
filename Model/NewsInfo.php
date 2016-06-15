@@ -5,6 +5,13 @@ namespace Model;
 use Goutte\Client;
 use Core\MySql\Mysql_Model\XmMysqlObj;
 
+/**
+ * 新闻抓取实例
+ * 
+ * 包含页面信息以及抓取类库实例
+ * @author         zanuck<ztyzly00@126.com> 
+ * @since          1.0 
+ */
 class NewsInfo {
 
     /**
@@ -86,7 +93,6 @@ class NewsInfo {
             }
             $query = substr($query, 0, -1);
             $query = $query . ")";
-            $this->xm_mysql_obj = XmMysqlObj::getInstance();
             $this->xm_mysql_obj->exec_query($query);
         }
     }
