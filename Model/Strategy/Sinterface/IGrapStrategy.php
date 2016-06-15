@@ -14,4 +14,9 @@ interface IGrapStrategy {
      * 抓取内容策略
      */
     public static function GrapHtml($crawler, $attributes);
+
+    /**
+     * 下一页选取策略
+     */
+    public static function NextPage($crawler, $attributes);
 }

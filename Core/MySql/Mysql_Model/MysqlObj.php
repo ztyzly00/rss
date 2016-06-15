@@ -60,4 +60,24 @@ class MysqlObj implements Mysql_Interface\iMySqlObj {
         return $row_nums;
     }
 
+    public function fetch_array_one($query) {
+        $result = mysqli_query($this->link, $query);
+        if ($result) {
+            $row = mysqli_fetch_array($result);
+            return $row;
+        } else {
+            return null;
+        }
+    }
+
+    public function fetch_assoc_one($query) {
+        $result = mysqli_query($this->link, $query);
+        if ($result) {
+            $row = mysqli_fetch_assoc($result);
+            return $row;
+        } else {
+            return null;
+        }
+    }
+
 }

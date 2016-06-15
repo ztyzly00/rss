@@ -33,4 +33,36 @@ class XinHuaGrapStrategy implements IGrapStrategy {
         return $attributes;
     }
 
+    /**
+     * 返回NextPage的信息
+     * @param type $crawler
+     * @param type $attributes
+     */
+    public static function NextPage($crawler, $attributes) {
+        $info = $attributes;
+
+        //判断是否存在下一页链接
+        if ($crawler->filter('.nextpage')->getNode(0)) {
+            $next_flag = 0;
+            $next_url = "";
+            for ($i = 0; $i < $crawler->filter('.nextpage')->count(); $i++) {
+                if ($crawler->filter('.nextpage')->getNode($i)->nodeValue == '下一页') {
+                    $next_flag = 1;
+                    $next_url = $crawler->filter('.nextpage')->getChild($i)->link()->getUri();
+                    $info['link'] = $next_url;
+                    break;
+                }
+            }
+
+            if ($next_flag == 1) {
+                $info['pageid'] = $info['pageid'] + 1;
+                return $info;
+            } else {
+                return null;
+            }
+        } else {
+            return null;
+        }
+    }
+
 }

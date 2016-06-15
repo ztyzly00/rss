@@ -4,14 +4,8 @@ namespace Model;
 
 use Goutte\Client;
 use Core\MySql\Mysql_Model\XmMysqlObj;
-use Model\Strategy;
 
 class NewsInfo {
-    /**
-     * $title;$newsid;$link;$catid;$content;
-      $source;$time;$rssid;$pageid;
-     * @var type 
-     */
 
     /**
      * 属性
@@ -26,6 +20,12 @@ class NewsInfo {
     public $crawler;
 
     /**
+     * 数据库句柄
+     * @var type 
+     */
+    public $xm_mysql_obj;
+
+    /**
      * 构造函数
      * @param type $info
      */
@@ -38,8 +38,13 @@ class NewsInfo {
             $this->attributes['newsid'] = uniqid();
         }
 
+        $this->xm_mysql_obj = XmMysqlObj::getInstance();
+
+        //初始化抓取类库
         $client = new Client();
         $this->crawler = $client->request('GET', $this->attributes['link']);
+
+        //默认实例化对象就开始抓取内容
         $this->grabHtml();
     }
 
@@ -47,28 +52,8 @@ class NewsInfo {
      * 抓取内容
      */
     public function grabHtml() {
-
-
-        $this->attributes = Strategy\XinHuaGrapStrategy::GrapHtml($this->crawler, $this->attributes);
-
-
-
-
-//        if ($this->crawler->filter('.bai13')->getNode(0)) {
-//            //内容信息记录
-//            $this->attributes['content'] = $this->crawler->filter('.bai13')->eq(1)->html();
-//            //来源信息记录
-//            $this->attributes['source'] = $this->crawler->filter('.info')->text();
-//        }
-//        //不是图集，是普通的文章模型
-//        else {
-//            $this->attributes['source'] = $this->crawler->filter('#source')->text();
-//            if ($this->crawler->filter('.article')->getNode(0)) {
-//                $this->attributes['content'] = $this->crawler->filter('.article')->html();
-//            } elseif ($this->crawler->filter('#content')->getNode(0)) {
-//                $this->attributes['content'] = $this->crawler->filter('#content')->html();
-//            }
-//        }
+        $strategy_class = $this->getStrategy();
+        $this->attributes = call_user_func(array($strategy_class, 'GrapHtml'), $this->crawler, $this->attributes);
     }
 
     /**
@@ -101,40 +86,32 @@ class NewsInfo {
             }
             $query = substr($query, 0, -1);
             $query = $query . ")";
-            $xm_mysql_obj = XmMysqlObj::getInstance();
-            $xm_mysql_obj->exec_query($query);
+            $this->xm_mysql_obj = XmMysqlObj::getInstance();
+            $this->xm_mysql_obj->exec_query($query);
         }
     }
 
     /**
      * 返回该网页的下一页网页,如果没有返回null
-     * @return null
+     * @return 返回下一个网页的实例对象
      */
     public function nextPage() {
-        $info = $this->attributes;
+        $strategy_class = $this->getStrategy();
+        $next_page_attributes = call_user_func(array($strategy_class, 'NextPage'), $this->crawler, $this->attributes);
 
-        if ($this->crawler->filter('.nextpage')->getNode(0)) {
-            $next_flag = 0;
-            $next_url = "";
-            for ($i = 0; $i < $this->crawler->filter('.nextpage')->count(); $i++) {
-                if ($this->crawler->filter('.nextpage')->getNode($i)->nodeValue == '下一页') {
-                    $next_flag = 1;
-                    $next_url = $this->crawler->filter('.nextpage')->getChild($i)->link()->getUri();
-                    $info['link'] = $next_url;
-                    break;
-                }
-            }
-
-            if ($next_flag == 1) {
-                $info['pageid'] = $info['pageid'] + 1;
-                $next_page = new static($info);
-                return $next_page;
-            } else {
-                return null;
-            }
-        } else {
-            return null;
+        if ($next_page_attributes) {
+            return new static($next_page_attributes);
         }
+    }
+
+    /**
+     * 获取策略
+     * @return type 返回策略名称    
+     */
+    public function getStrategy() {
+        $query = "select strategy from rs_rss_map where rssid='{$this->attributes['rssid']}'";
+        $row = $this->xm_mysql_obj->fetch_array_one($query);
+        return "Model\\Strategy\\" . $row['strategy'];
     }
 
 }
