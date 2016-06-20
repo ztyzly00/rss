@@ -102,11 +102,14 @@ class NewsInfo {
      * @return 返回下一个网页的实例对象
      */
     public function nextPage() {
+
         $strategy_class = $this->getStrategy();
         $next_page_attributes = call_user_func(array($strategy_class, 'NextPage'), $this->crawler, $this->attributes);
 
         if ($next_page_attributes) {
             return new static($next_page_attributes);
+        } else {
+            return null;
         }
     }
 

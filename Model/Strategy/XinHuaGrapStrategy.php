@@ -21,8 +21,13 @@ class XinHuaGrapStrategy implements IGrapStrategy {
     public static function GrapHtml($crawler, $attributes) {
         //是图集
         if ($crawler->filter('.bai13')->getNode(0)) {
-            //内容信息记录
-            $attributes['content'] = $crawler->filter('.bai13')->eq(1)->html();
+            //两种图集判定
+            if ($crawler->filter('#pcNav')->getNode(0)) {
+                //内容信息记录
+                $attributes['content'] = $crawler->filter('.bai13')->eq(1)->html();
+            } else {
+                $attributes['content'] = $crawler->filter('.bai13')->html();
+            }
             //来源信息记录
             $attributes['source'] = $crawler->filter('.info')->text();
         }

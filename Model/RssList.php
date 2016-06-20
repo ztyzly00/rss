@@ -48,6 +48,8 @@ class RssList {
             $query = "select link from rs_news where link='{$info['link']}'";
             $num_rows = $xm_mysql_obj->num_rows($query);
 
+            echo $info['link'] . "\n";
+
             //不重复链接的新闻才抓取
             if (!$num_rows) {
                 $news_info = new NewsInfo($info);

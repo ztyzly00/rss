@@ -17,9 +17,7 @@ $xm_mysql_obj = XmMysqlObj::getInstance();
 $query = "select * from rs_category_map where rssid=$rssid ";
 $fetch_array = $xm_mysql_obj->fetch_assoc($query);
 for ($i = 0; $i < count($fetch_array); $i++) {
-    $catid = $fetch_array[$i]['categoryid'];
-
-    exec('php GrapByCatId.php ' . $catid . ' > /dev/null &');
-
+    $catid = $fetch_array[$i]['categoryid'];        
+    exec('php '.__DIR__.'/GrapByCatId.php ' . $catid . ' > /dev/null &');
     echo $catid . "\n";
 }
