@@ -37,9 +37,8 @@ class RssList {
         $row = $xm_mysql_obj->fetch_assoc_one($query);
         $href = $row['href'];
         $rssid = $row['rssid'];
-
         $xml_array = XmlList::getArrayByXml($href);
-
+        /* 进程池 */
         $pids = array();
 
         for ($i = 0; $i < count($xml_array); $i++) {
@@ -56,7 +55,7 @@ class RssList {
                     $info['catid'] = $catid;
                     $info['rssid'] = $rssid;
 
-                    $query = "select link from rs_news where link='{$info['link']}'";
+                    $query = "select link from rs_news where link='{$info['link']}' limit 1";
                     $num_rows = $xm_mysql_obj->num_rows($query);
 
                     if (!$num_rows) {
