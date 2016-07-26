@@ -10,10 +10,8 @@ class MysqlObj implements Mysql_Interface\iMySqlObj {
     private static $_instance;
     private $link;
 
-    public function __construct() {
-        //获取ntjoy数据库实例(192.168.20.20)
-        $dataBaseInstance = SqlLink\SqlLinkFactory::createNtjoyDatabase();
-        //获取连接句柄
+    public function __construct($opt = 0) {
+        $dataBaseInstance = SqlLink\SqlLinkFactory::createNtjoyDatabase($opt);
         $this->link = $dataBaseInstance->getDbLink();
     }
 

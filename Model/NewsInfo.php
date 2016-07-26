@@ -45,7 +45,7 @@ class NewsInfo {
             $this->attributes['newsid'] = uniqid();
         }
 
-        $this->xm_mysql_obj = XmMysqlObj::getInstance();
+        $this->xm_mysql_obj = XmMysqlObj::getInstance(1);
 
         //初始化抓取类库
         $client = new Client();

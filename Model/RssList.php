@@ -40,24 +40,41 @@ class RssList {
 
         $xml_array = XmlList::getArrayByXml($href);
 
-        
+        $pids = array();
+
         for ($i = 0; $i < count($xml_array); $i++) {
-            $info = $xml_array[$i];
-            $info['catid'] = $catid;
-            $info['rssid'] = $rssid;
 
-            $query = "select link from rs_news where link='{$info['link']}'";
-            $num_rows = $xm_mysql_obj->num_rows($query);
+            $pids[$i] = pcntl_fork();
 
-            echo $info['link'] . "\n";
+            switch ($pids[$i]) {
+                case -1:
+                    echo "fork error:{$i}\r\n";
+                    exit;
+                case 0:
+                    $xm_mysql_obj = XmMysqlObj::getInstance(1);
+                    $info = $xml_array[$i];
+                    $info['catid'] = $catid;
+                    $info['rssid'] = $rssid;
 
-            //不重复链接的新闻才抓取
-            if (!$num_rows) {
-                $news_info = new NewsInfo($info);
-                $news_info->saveToDb();
-                while ($news_info = $news_info->nextPage()) {
-                    $news_info->saveToDb();
-                }
+                    $query = "select link from rs_news where link='{$info['link']}'";
+                    $num_rows = $xm_mysql_obj->num_rows($query);
+
+                    if (!$num_rows) {
+                        $news_info = new NewsInfo($info);
+                        $news_info->saveToDb();
+                        while ($news_info = $news_info->nextPage()) {
+                            $news_info->saveToDb();
+                        }
+                    }
+                    exit;
+                default :
+                    break;
+            }
+        }
+
+        foreach ($pids as $i => $pid) {
+            if ($pid) {
+                pcntl_waitpid($pid, $status);
             }
         }
     }
