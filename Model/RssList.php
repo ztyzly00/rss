@@ -40,6 +40,7 @@ class RssList {
 
         $xml_array = XmlList::getArrayByXml($href);
 
+        
         for ($i = 0; $i < count($xml_array); $i++) {
             $info = $xml_array[$i];
             $info['catid'] = $catid;
