@@ -38,6 +38,7 @@ class RssList {
         $href = $row['href'];
         $rssid = $row['rssid'];
         $xml_array = XmlList::getArrayByXml($href);
+
         /* 进程池 */
         $pids = array();
 
@@ -57,7 +58,7 @@ class RssList {
 
                     $query = "select link from rs_news where link='{$info['link']}' limit 1";
                     $num_rows = $xm_mysql_obj->num_rows($query);
-
+                    print_r($info['link'] . "\n");
                     if (!$num_rows) {
                         $news_info = new NewsInfo($info);
                         $news_info->saveToDb();
@@ -67,6 +68,15 @@ class RssList {
                     }
                     exit;
                 default :
+                    /* 控制100进程左右,总共2400进程 */
+                    if ($i % 100 == 0) {
+                        foreach ($pids as $i => $pid) {
+                            if ($pid) {
+                                pcntl_waitpid($pid, $status);
+                                unset($pids[$i]);
+                            }
+                        }
+                    }
                     break;
             }
         }

@@ -27,22 +27,19 @@ use Symfony\Component\BrowserKit\Response;
  * @author Michael Dowling <michael@guzzlephp.org>
  * @author Charles Sarrazin <charles@sarraz.in>
  */
-class Client extends BaseClient
-{
-    protected $client;
+class Client extends BaseClient {
 
+    protected $client;
     private $headers = array();
     private $auth = null;
 
-    public function setClient(GuzzleClientInterface $client)
-    {
+    public function setClient(GuzzleClientInterface $client) {
         $this->client = $client;
 
         return $this;
     }
 
-    public function getClient()
-    {
+    public function getClient() {
         if (!$this->client) {
             $this->client = new GuzzleClient(array('defaults' => array('allow_redirects' => false, 'cookies' => true)));
         }
@@ -50,27 +47,23 @@ class Client extends BaseClient
         return $this->client;
     }
 
-    public function setHeader($name, $value)
-    {
+    public function setHeader($name, $value) {
         $this->headers[$name] = $value;
 
         return $this;
     }
 
-    public function removeHeader($name)
-    {
+    public function removeHeader($name) {
         unset($this->headers[$name]);
     }
 
-    public function setAuth($user, $password = '', $type = 'basic')
-    {
+    public function setAuth($user, $password = '', $type = 'basic') {
         $this->auth = array($user, $password, $type);
 
         return $this;
     }
 
-    public function resetAuth()
-    {
+    public function resetAuth() {
         $this->auth = null;
 
         return $this;
@@ -81,8 +74,7 @@ class Client extends BaseClient
      *
      * @return Response
      */
-    protected function doRequest($request)
-    {
+    protected function doRequest($request) {
         $headers = array();
         foreach ($request->getServer() as $key => $val) {
             $key = strtolower(str_replace('_', '-', $key));
@@ -97,8 +89,7 @@ class Client extends BaseClient
         }
 
         $cookies = CookieJar::fromArray(
-            $this->getCookieJar()->allRawValues($request->getUri()),
-            parse_url($request->getUri(), PHP_URL_HOST)
+                        $this->getCookieJar()->allRawValues($request->getUri()), parse_url($request->getUri(), PHP_URL_HOST)
         );
 
         $requestOptions = array(
@@ -108,15 +99,18 @@ class Client extends BaseClient
         );
 
         if (!in_array($request->getMethod(), array('GET', 'HEAD'))) {
+
             if (null !== $content = $request->getContent()) {
                 $requestOptions['body'] = $content;
             } else {
+
                 if ($files = $request->getFiles()) {
                     $requestOptions['multipart'] = [];
 
                     $this->addPostFields($request->getParameters(), $requestOptions['multipart']);
                     $this->addPostFiles($files, $requestOptions['multipart']);
                 } else {
+
                     $requestOptions['form_params'] = $request->getParameters();
                 }
             }
@@ -135,6 +129,7 @@ class Client extends BaseClient
 
         // Let BrowserKit handle redirects
         try {
+
             $response = $this->getClient()->request($method, $uri, $requestOptions);
         } catch (RequestException $e) {
             $response = $e->getResponse();
@@ -142,19 +137,18 @@ class Client extends BaseClient
                 throw $e;
             }
         }
-
+        //print_r($requestOptions);
         return $this->createResponse($response);
     }
 
-    protected function addPostFiles(array $files, array &$multipart, $arrayName = '')
-    {
+    protected function addPostFiles(array $files, array &$multipart, $arrayName = '') {
         if (empty($files)) {
             return;
         }
 
         foreach ($files as $name => $info) {
             if (!empty($arrayName)) {
-                $name = $arrayName.'['.$name.']';
+                $name = $arrayName . '[' . $name . ']';
             }
 
             $file = [
@@ -183,11 +177,10 @@ class Client extends BaseClient
         }
     }
 
-    public function addPostFields(array $formParams, array &$multipart, $arrayName = '')
-    {
+    public function addPostFields(array $formParams, array &$multipart, $arrayName = '') {
         foreach ($formParams as $name => $value) {
             if (!empty($arrayName)) {
-                $name = $arrayName.'['.$name.']';
+                $name = $arrayName . '[' . $name . ']';
             }
 
             if (is_array($value)) {
@@ -201,8 +194,8 @@ class Client extends BaseClient
         }
     }
 
-    protected function createResponse(ResponseInterface $response)
-    {
+    protected function createResponse(ResponseInterface $response) {
         return new Response((string) $response->getBody(), $response->getStatusCode(), $response->getHeaders());
     }
+
 }

@@ -16,8 +16,8 @@ namespace Symfony\Component\BrowserKit;
  *
  * @author Fabien Potencier <fabien@symfony.com>
  */
-class Request
-{
+class Request {
+
     protected $uri;
     protected $method;
     protected $parameters;
@@ -37,8 +37,7 @@ class Request
      * @param array  $server     An array of server parameters
      * @param string $content    The raw body data
      */
-    public function __construct($uri, $method, array $parameters = array(), array $files = array(), array $cookies = array(), array $server = array(), $content = null)
-    {
+    public function __construct($uri, $method, array $parameters = array(), array $files = array(), array $cookies = array(), array $server = array(), $content = null) {
         $this->uri = $uri;
         $this->method = $method;
         $this->parameters = $parameters;
@@ -53,8 +52,7 @@ class Request
      *
      * @return string The request URI
      */
-    public function getUri()
-    {
+    public function getUri() {
         return $this->uri;
     }
 
@@ -63,8 +61,7 @@ class Request
      *
      * @return string The request HTTP method
      */
-    public function getMethod()
-    {
+    public function getMethod() {
         return $this->method;
     }
 
@@ -73,8 +70,7 @@ class Request
      *
      * @return array The request parameters
      */
-    public function getParameters()
-    {
+    public function getParameters() {
         return $this->parameters;
     }
 
@@ -83,8 +79,7 @@ class Request
      *
      * @return array The request files
      */
-    public function getFiles()
-    {
+    public function getFiles() {
         return $this->files;
     }
 
@@ -93,8 +88,7 @@ class Request
      *
      * @return array The request cookies
      */
-    public function getCookies()
-    {
+    public function getCookies() {
         return $this->cookies;
     }
 
@@ -103,8 +97,7 @@ class Request
      *
      * @return array The request server parameters
      */
-    public function getServer()
-    {
+    public function getServer() {
         return $this->server;
     }
 
@@ -113,8 +106,8 @@ class Request
      *
      * @return string The request raw body data.
      */
-    public function getContent()
-    {
+    public function getContent() {
         return $this->content;
     }
+
 }

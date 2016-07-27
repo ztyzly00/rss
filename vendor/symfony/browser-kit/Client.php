@@ -257,6 +257,7 @@ abstract class Client {
      * @return Crawler
      */
     public function request($method, $uri, array $parameters = array(), array $files = array(), array $server = array(), $content = null, $changeHistory = true) {
+
         if ($this->isMainRequest) {
             $this->redirectCount = 0;
         } else {

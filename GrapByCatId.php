@@ -5,7 +5,7 @@ require_once 'vendor/autoload.php';
 
 use Model\RssList;
 
-set_time_limit(0);
+set_time_limit(20);
 
 $catid = $argv[1];
 if (!(isset($argv[1]))) {

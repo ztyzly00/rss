@@ -45,13 +45,19 @@ class NewsInfo {
             $this->attributes['newsid'] = uniqid();
         }
 
+        /* 不使用单例模式，因为需要高度并行 */
         $this->xm_mysql_obj = XmMysqlObj::getInstance(1);
 
-        //初始化抓取类库
-        $client = new Client();
-        $this->crawler = $client->request('GET', $this->attributes['link']);
+        /* 初始化抓取类库 */
+        try {
+            $client = new Client();
+            $this->crawler = $client->request('GET', $this->attributes['link']);
+        } catch (Exception $e) {
+            print_r($e) . "\n";
+            exit;
+        }
 
-        //默认实例化对象就开始抓取内容
+        /* 默认实例化对象就开始抓取内容 */
         $this->grabHtml();
     }
 
