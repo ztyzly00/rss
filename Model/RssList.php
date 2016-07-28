@@ -62,21 +62,19 @@ class RssList {
                 case -1:
                     echo "fork error:{$i}\r\n";
                     exit;
-                case 0:
+                case 0: /* 子进程 */
                     $info = $xml_array[$i];
                     $info['catid'] = $catid;
                     $info['rssid'] = $rssid;
-
                     $news_info = new NewsInfo($info);
                     $news_info->saveToDb();
                     while ($news_info = $news_info->nextPage()) {
                         $news_info->saveToDb();
                     }
-
                     exit;
-                default :
+                default : /* 父进程 */
                     /* 单catid控制100进程左右,总共2400进程 */
-                    if ($i % 100 == 0) {
+                    if ($i % 1000 == 0) {
                         foreach ($pids as $i => $pid) {
                             if ($pid) {
                                 pcntl_waitpid($pid, $status);

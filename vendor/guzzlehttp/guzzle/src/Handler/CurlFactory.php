@@ -335,8 +335,8 @@ class CurlFactory implements CurlFactoryInterface {
         }
 
         /* 额外定死  3秒超时 */
-        $options['connect_timeout'] = 10;
-        $options['timeout'] = 10;
+        $options['connect_timeout'] = 5;
+        $options['timeout'] = 5;
 
         if (isset($options['timeout'])) {
             $conf[CURLOPT_TIMEOUT_MS] = $options['timeout'] * 1000;

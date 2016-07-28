@@ -45,9 +45,6 @@ class NewsInfo {
             $this->attributes['newsid'] = uniqid();
         }
 
-        /* 不使用单例模式，因为需要高度并行 */
-        $this->xm_mysql_obj = XmMysqlObj::getInstance(1);
-
         /* 初始化抓取类库 */
         try {
             $client = new Client();
@@ -56,6 +53,9 @@ class NewsInfo {
             print_r($e) . "\n";
             exit;
         }
+
+        /* 不使用单例模式，因为需要高度并行 */
+        $this->xm_mysql_obj = XmMysqlObj::getInstance(1);
 
         /* 默认实例化对象就开始抓取内容 */
         $this->grabHtml();
