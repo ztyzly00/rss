@@ -13,7 +13,8 @@ use Core\MySql\Mysql_Model\XmMysqlObj;
 class RssList {
 
     /**
-     * 根据rssid来抓取新闻（不推荐，速度太慢，尽量用exec模拟多线程）
+     * 根据rssid来抓取新闻(单线程)
+     * （不推荐，速度太慢，尽量用exec模拟多线程）    
      * @param type $rssid
      */
     public static function getNewsInfoByRssId($rssid) {
@@ -32,14 +33,51 @@ class RssList {
      * @param type $catid
      */
     public static function getNewsInfoByCatId($catid) {
-        $xm_mysql_obj = XmMysqlObj::getInstance(1);
+        $xm_mysql_obj = XmMysqlObj::getInstance();
+
         $query = "select * from rs_category_map where categoryid=$catid limit 1";
         $row = $xm_mysql_obj->fetch_assoc_one($query);
+
         $href = $row['href'];
         $rssid = $row['rssid'];
-        $xml_array = XmlList::getArrayByXml($href);
 
-        /* 一次性抓取mysql，防止高并发select */
+        $xml_array = XmlList::getArrayByXml($href);
+        $xml_array = self::diplicateNews($xml_array, $catid);
+        $xml_array = self::addNotDoneNews($xml_array, $catid);
+
+        self::startGrab($xml_array, $rssid, $catid);
+    }
+
+    /**
+     * 将未完成的新闻加入抓取名单
+     * @param type $xml_array
+     * @param type $catid
+     * @return type
+     */
+    public static function addNotDoneNews($xml_array, $catid) {
+        $xm_mysql_obj = XmMysqlObj::getInstance();
+        $query = "select * from rs_news where nextdone=0 and catid=$catid";
+        $fetch_array = $xm_mysql_obj->fetch_assoc($query);
+
+        for ($i = 0; $i < count($fetch_array); $i++) {
+            $temp_array['link'] = $fetch_array[$i]['link'];
+            $temp_array['time'] = $fetch_array[$i]['time'];
+            $temp_array['description'] = $fetch_array[$i]['description'];
+            $temp_array['title'] = $fetch_array[$i]['title'];
+            print_r($temp_array);
+            $xml_array[] = $temp_array;
+        }
+
+        return $xml_array;
+    }
+
+    /**
+     * xml中要抓取的数组根据数据库中已有的数据进行去重
+     * @param type $xml_array
+     * @param type $catid
+     */
+    public static function diplicateNews($xml_array, $catid) {
+        $xm_mysql_obj = XmMysqlObj::getInstance();
         $query = "select link from rs_news where catid=$catid order by time desc limit 500";
         $link_list = $xm_mysql_obj->fetch_assoc($query);
         for ($i = 0; $i < count($link_list); $i++) {
@@ -50,8 +88,17 @@ class RssList {
                 }
             }
         }
+        return $xml_array;
+    }
 
-        /* 进程池 */
+    /**
+     * 开始多进程抓取新闻
+     * @param type $xml_array
+     * @param type $rssid
+     * @param type $catid
+     */
+    public static function startGrab($xml_array, $rssid, $catid) {
+
         $pids = array();
 
         for ($i = 0; $i < count($xml_array); $i++) {

@@ -33,6 +33,12 @@ class NewsInfo {
     public $xm_mysql_obj;
 
     /**
+     * 下页文章属性
+     * @var type 
+     */
+    public $next_page_attributes;
+
+    /**
      * 构造函数
      * @param type $info
      */
@@ -43,6 +49,12 @@ class NewsInfo {
         }
         if (!isset($info['newsid'])) {
             $this->attributes['newsid'] = uniqid();
+        }
+        if (!isset($info['nextpage'])) {
+            $this->attributes['nextpage'] = 0;
+        }
+        if (!isset($info['nextdone'])) {
+            $this->attributes['nextdone'] = 0;
         }
 
         /* 初始化抓取类库 */
@@ -56,6 +68,18 @@ class NewsInfo {
 
         /* 不使用单例模式，因为需要高度并行 */
         $this->xm_mysql_obj = XmMysqlObj::getInstance(1);
+
+        /* 获取newsinfo的各种信息 */
+        $this->getAttribute();
+    }
+
+    /**
+     * 获取newsinfo的各种信息
+     */
+    public function getAttribute() {
+
+        /* 获取下一网页属性 */
+        $this->getNextPageAttr();
 
         /* 默认实例化对象就开始抓取内容 */
         $this->grabHtml();
@@ -109,14 +133,42 @@ class NewsInfo {
      */
     public function nextPage() {
 
-        $strategy_class = $this->getStrategy();
-        $next_page_attributes = call_user_func(array($strategy_class, 'NextPage'), $this->crawler, $this->attributes);
-
-        if ($next_page_attributes) {
-            return new static($next_page_attributes);
+        if ($this->next_page_attributes) {
+            $next_page = new static($this->next_page_attributes);
+            if ($next_page) {
+                $this->setNextDone();
+                return $next_page;
+            } else {
+                return null;
+            }
         } else {
             return null;
         }
+    }
+
+    /**
+     * 获取下一网页的属性
+     */
+    public function getNextPageAttr() {
+        $strategy_class = $this->getStrategy();
+        $this->next_page_attributes = call_user_func(array($strategy_class, 'NextPage'), $this->crawler, $this->attributes);
+        if ($this->next_page_attributes) {
+            $this->attributes['nextpage'] = 1;
+        } else {
+            $this->attributes['nextdone'] = 1;
+        }
+    }
+
+    /**
+     * 设置当前抓取的新闻没有下页，无需抓取。
+     * 需要用到Innodb事务，因为高度并发性。
+     * 事务隔离级别可防止幻读
+     */
+    public function setNextDone() {
+        $this->xm_mysql_obj->exec_query("SET AUTOCOMMIT=0;BEGIN WORK;");
+        $this->xm_mysql_obj->exec_query("select nextdone from rs_news where link='{$this->attributes['link']}' for update");
+        $this->xm_mysql_obj->exec_query("update rs_news set nextdone = 1 where link='{$this->attributes['link']}'");
+        $this->xm_mysql_obj->exec_query("COMMIT WORK");
     }
 
     /**
