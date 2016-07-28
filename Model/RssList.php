@@ -14,7 +14,7 @@ class RssList {
 
     /**
      * 根据rssid来抓取新闻(单线程)
-     * （不推荐，速度太慢，尽量用exec模拟多线程）    
+     * （不推荐，速度太慢）    
      * @param type $rssid
      */
     public static function getNewsInfoByRssId($rssid) {
@@ -24,7 +24,7 @@ class RssList {
         for ($i = 0; $i < count($fetch_array); $i++) {
             $catid = $fetch_array[$i]['categoryid'];
             self::getNewsInfoByCatId($catid);
-            echo $catid . "\n";
+            echo $catid . "==========================\n";
         }
     }
 
@@ -33,7 +33,7 @@ class RssList {
      * @param type $catid
      */
     public static function getNewsInfoByCatId($catid) {
-        $xm_mysql_obj = XmMysqlObj::getInstance();
+        $xm_mysql_obj = XmMysqlObj::getInstance(1);
 
         $query = "select * from rs_category_map where categoryid=$catid limit 1";
         $row = $xm_mysql_obj->fetch_assoc_one($query);
@@ -64,7 +64,6 @@ class RssList {
             $temp_array['time'] = $fetch_array[$i]['time'];
             $temp_array['description'] = $fetch_array[$i]['description'];
             $temp_array['title'] = $fetch_array[$i]['title'];
-            print_r($temp_array);
             $xml_array[] = $temp_array;
         }
 
@@ -121,7 +120,7 @@ class RssList {
                     exit;
                 default : /* 父进程 */
                     /* 单catid控制100进程左右,总共2400进程 */
-                    if ($i % 1000 == 0) {
+                    if ($i % 10 == 0) {
                         foreach ($pids as $i => $pid) {
                             if ($pid) {
                                 pcntl_waitpid($pid, $status);
